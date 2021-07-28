@@ -45,14 +45,6 @@ def create_app(test_config=None):
       'categories': categories_arr
     })
 
-
-  '''
-  @TODO: 
-  TEST: At this point, when you start the application
-  you should see questions and categories generated,
-  ten questions per page and pagination at the bottom of the screen for three pages.
-  Clicking on the page numbers should update the questions. 
-  '''
   @app.route('/questions')
   def get_questions():
     questions = get_current_questions(request)
