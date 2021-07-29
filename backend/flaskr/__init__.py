@@ -8,10 +8,14 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
-def get_current_questions(request):
+def get_current_questions(request, search_term = None):
   page = request.args.get('page', 1, type=int)
   start = (page - 1) * QUESTIONS_PER_PAGE
-  questions = Question.query.order_by(Question.id).limit(QUESTIONS_PER_PAGE).offset(start)
+  if (search_term != None):
+    questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).order_by(Question.id).limit(QUESTIONS_PER_PAGE).offset(start)
+  else:
+    questions = Question.query.order_by(Question.id).limit(QUESTIONS_PER_PAGE).offset(start)
+  
   current_questions = [question.format() for question in questions]
 
   return current_questions
@@ -88,37 +92,47 @@ def create_app(test_config=None):
   def post_question():
     body = request.get_json()
 
-    new_question = body.get('question')
-    new_answer = body.get('answer')
-    new_difficulty = body.get('difficulty')
-    new_category = body.get('category')
+    if (body.get('searchTerm')):
+      search_term = body.get('searchTerm')
+      questions = get_current_questions(request, search_term)
 
-    if ((new_question is None) or (new_answer is None) or (new_difficulty is None) or (new_category is None)):
-      abort(422)
-
-    try:
-      question = Question(question = new_question, answer = new_answer, difficulty = new_difficulty, category = new_category)
-      question.insert()
-
-      current_questions = get_current_questions(request)
+      if (len(questions) == 0):
+        abort(404)
 
       return jsonify({
         'success': True,
-        'created': question.id,
-        'question_created': question.question,
-        'questions': current_questions,
+        'questions': questions,
         'total_questions': len(Question.query.all())
       })
+    
+    else:
+      new_question = body.get('question')
+      new_answer = body.get('answer')
+      new_difficulty = body.get('difficulty')
+      new_category = body.get('category')
 
-    except:
-      abort(422)
+      if ((new_question is None) or (new_answer is None) or (new_difficulty is None) or (new_category is None)):
+        abort(422)
+
+      try:
+        question = Question(question = new_question, answer = new_answer, difficulty = new_difficulty, category = new_category)
+        question.insert()
+
+        current_questions = get_current_questions(request)
+
+        return jsonify({
+          'success': True,
+          'created': question.id,
+          'question_created': question.question,
+          'questions': current_questions,
+          'total_questions': len(Question.query.all())
+        })
+
+      except:
+        abort(422)
 
   '''
   @TODO: 
-  Create a POST endpoint to get questions based on a search term. 
-  It should return any questions for whom the search term 
-  is a substring of the question. 
-
   TEST: Search by any phrase. The questions list will update to include 
   only question that include that string within their question. 
   Try using the word "title" to start. 
