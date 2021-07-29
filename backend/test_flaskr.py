@@ -104,6 +104,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(len(data['questions']), 1)
         self.assertEqual(data['questions'][0]['id'], 23)
 
+    def test_404_if_search_questions_fails(self):
+        response = self.client().post('/questions', json={'searchTerm': 'abcdefghijk'})
+        data = json.loads(response.data)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['message'], 'Not found')
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
