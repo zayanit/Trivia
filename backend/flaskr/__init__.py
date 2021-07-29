@@ -8,11 +8,13 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
-def get_current_questions(request, search_term = None):
+def get_current_questions(request, search_term = None, category_id = None):
   page = request.args.get('page', 1, type=int)
   start = (page - 1) * QUESTIONS_PER_PAGE
   if (search_term != None):
     questions = Question.query.filter(Question.question.ilike(f'%{search_term}%')).order_by(Question.id).limit(QUESTIONS_PER_PAGE).offset(start)
+  elif (category_id != None):
+     questions = Question.query.filter_by(category = category_id).limit(QUESTIONS_PER_PAGE).offset(start)
   else:
     questions = Question.query.order_by(Question.id).limit(QUESTIONS_PER_PAGE).offset(start)
   
@@ -133,19 +135,26 @@ def create_app(test_config=None):
 
   '''
   @TODO: 
-  TEST: Search by any phrase. The questions list will update to include 
-  only question that include that string within their question. 
-  Try using the word "title" to start. 
-  '''
-
-  '''
-  @TODO: 
-  Create a GET endpoint to get questions based on category. 
-
   TEST: In the "List" tab / main screen, clicking on one of the 
   categories in the left column will cause only questions of that 
   category to be shown. 
   '''
+  @app.route('/categories/<int:id>/questions')
+  def get_questions_by_category(id):
+    category = Category.query.filter(Category.id == id).one_or_none()
+
+    if (category is None):
+      abort(400)
+
+    category_id = category.id
+    questions = get_current_questions(request, None, category_id)
+
+    return jsonify({
+      'success': True,
+      'questions': questions,
+      'total_questions': len(Question.query.all()),
+      'current_category': category.type
+    })
 
 
   '''
