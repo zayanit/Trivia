@@ -18,6 +18,13 @@ class TriviaTestCase(unittest.TestCase):
         self.database_path = "postgresql://{}/{}".format('localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
+        self.new_question = {
+            'question': 'Which four states make up the 4 Corners region of the US?',
+            'answer': 'Colorado, New Mexico, Arizona, Utah',
+            'difficulty': 3,
+            'category': '3'
+        }
+
         # binds the app to the current context
         with self.app.app_context():
             self.db = SQLAlchemy()
