@@ -133,12 +133,6 @@ def create_app(test_config=None):
       except:
         abort(422)
 
-  '''
-  @TODO: 
-  TEST: In the "List" tab / main screen, clicking on one of the 
-  categories in the left column will cause only questions of that 
-  category to be shown. 
-  '''
   @app.route('/categories/<int:id>/questions')
   def get_questions_by_category(id):
     category = Category.query.filter(Category.id == id).one_or_none()
