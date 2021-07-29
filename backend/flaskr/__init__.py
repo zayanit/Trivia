@@ -150,15 +150,6 @@ def create_app(test_config=None):
       'current_category': category.type
     })
 
-
-  '''
-  @TODO: 
- 
-
-  TEST: In the "Play" tab, after a user selects "All" or a category,
-  one question at a time is displayed, the user is allowed to answer
-  and shown whether they were correct or not. 
-  '''
   @app.route('/quizzes', methods=['POST'])
   def get_random_quiz_question():
     body = request.get_json()
