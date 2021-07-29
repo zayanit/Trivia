@@ -29,10 +29,6 @@ class TriviaTestCase(unittest.TestCase):
         """Executed after reach test"""
         pass
 
-    """
-    TODO
-    Write at least one test for each test for successful operation and for expected errors.
-    """
     def test_get_paginated_questions(self):
         response = self.client().get('/questions')
         data = json.loads(response.data)
@@ -52,8 +48,8 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Not found')
 
     def test_delete_question(self):
-        question = Question(question=self.new_question['question'], answer=self.new_question['answer'],
-                            category=self.new_question['category'], difficulty=self.new_question['difficulty'])
+        question = Question(question = self.new_question['question'], answer = self.new_question['answer'],
+                            category = self.new_question['category'], difficulty = self.new_question['difficulty'])
         question.insert()
         q_id = question.id
 
@@ -72,6 +68,20 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(questions_before) - len(questions_after) == 1)
         self.assertEqual(question, None)
 
+    def test_create_new_question(self):
+        questions_before = Question.query.all()
+
+        response = self.client().post('/questions', json = self.new_question)
+        data = json.loads(response.data)
+
+        questions_after = Question.query.all()
+
+        question = Question.query.filter(Question.id == data['created']).one_or_none()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(len(questions_after) - len(questions_before) == 1)
+        self.assertIsNotNone(question)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
