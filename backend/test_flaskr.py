@@ -83,6 +83,18 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(questions_after) - len(questions_before) == 1)
         self.assertIsNotNone(question)
 
+    def test_422_if_question_creation_fails(self):
+        questions_before = Question.query.all()
+
+        response = self.client().post('/questions', json={})
+        data = json.loads(response.data)
+
+        questions_after = Question.query.all()
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(data['success'], False)
+        self.assertTrue(len(questions_after) == len(questions_before))
+
 # Make the tests conveniently executable
 if __name__ == "__main__":
     unittest.main()
