@@ -15,11 +15,15 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgresql://{}/{}".format('localhost:5432', self.database_name)
+        self.database_path = "postgresql://{}/{}".format(
+            'localhost:5432',
+            self.database_name
+        )
         setup_db(self.app, self.database_path)
 
         self.new_question = {
-            'question': 'Which four states make up the 4 Corners region of the US?',
+            'question': 'Which four states make up the 4 Corners region of ' +
+            'the US?',
             'answer': 'Colorado, New Mexico, Arizona, Utah',
             'difficulty': 3,
             'category': '3'
@@ -31,7 +35,7 @@ class TriviaTestCase(unittest.TestCase):
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
-    
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -55,8 +59,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Not found')
 
     def test_delete_question(self):
-        question = Question(question = self.new_question['question'], answer = self.new_question['answer'],
-                            category = self.new_question['category'], difficulty = self.new_question['difficulty'])
+        question = Question(question=self.new_question['question'],
+                            answer=self.new_question['answer'],
+                            category=self.new_question['category'],
+                            difficulty=self.new_question['difficulty'])
+
         question.insert()
         q_id = question.id
 
@@ -78,12 +85,12 @@ class TriviaTestCase(unittest.TestCase):
     def test_create_new_question(self):
         questions_before = Question.query.all()
 
-        response = self.client().post('/questions', json = self.new_question)
+        response = self.client().post('/questions', json=self.new_question)
         data = json.loads(response.data)
 
         questions_after = Question.query.all()
 
-        question = Question.query.filter(Question.id == data['created']).one_or_none()
+        question = Question.query.filter_by(id=data['created']).one_or_none()
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(data['success'], True)
@@ -103,7 +110,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(len(questions_after) == len(questions_before))
 
     def test_search_questions(self):
-        response = self.client().post('/questions', json = {'searchTerm': 'egyptians'})
+        response = self.client().post(
+            '/questions',
+            json={'searchTerm': 'egyptians'}
+        )
+
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 200)
@@ -112,7 +123,11 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['questions'][0]['id'], 23)
 
     def test_404_if_search_questions_fails(self):
-        response = self.client().post('/questions', json={'searchTerm': 'abcdefghijk'})
+        response = self.client().post(
+            '/questions',
+            json={'searchTerm': 'abcdefghijk'}
+        )
+
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 404)
@@ -137,7 +152,14 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(data['message'], 'Bad request')
 
     def test_play_quiz_game(self):
-        response = self.client().post('/quizzes', json={'previous_questions': [20, 21], 'quiz_category': {'type': 'Science', 'id': '1'}})
+        response = self.client().post(
+            '/quizzes',
+            json={
+                'previous_questions': [20, 21],
+                'quiz_category': {'type': 'Science', 'id': '1'}
+            }
+        )
+
         data = json.loads(response.data)
 
         self.assertEqual(response.status_code, 200)
@@ -154,6 +176,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'Bad request')
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
