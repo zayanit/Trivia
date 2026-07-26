@@ -11,7 +11,7 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node -r ./scripts/webpack-dev-server-compat.js node_modules/react-scripts/scripts/start.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -51,6 +51,8 @@
     "@tootallnate/once": "^3.0.1",
     "uuid": "^11.1.1",
     "js-yaml": "^4.2.0",
-    "webpack-dev-server": "^5.2.5"
+    "webpack-dev-server": "^5.2.5",
+    "svgo": "^2.8.3",
+    "brace-expansion": "^5.0.8"
   }
 }
