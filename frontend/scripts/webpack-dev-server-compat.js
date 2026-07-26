@@ -20,22 +20,21 @@ require.cache[configPath].exports = (...args) => {
       server: typeof https === "object" ? { type: "https", options: https } : "https",
     }),
     setupMiddlewares(middlewares, devServer) {
-      onBeforeSetupMiddleware(devServer);
-
-      const afterMiddlewares = [];
+      const craMiddlewares = [];
       const use = devServer.app.use;
       devServer.app.use = middleware => {
-        afterMiddlewares.push(middleware);
+        craMiddlewares.push(middleware);
         return devServer.app;
       };
 
       try {
+        onBeforeSetupMiddleware(devServer);
         onAfterSetupMiddleware(devServer);
       } finally {
         devServer.app.use = use;
       }
 
-      return [...middlewares, ...afterMiddlewares];
+      return [...middlewares, ...craMiddlewares];
     },
   };
 };
